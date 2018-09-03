@@ -1,21 +1,30 @@
+# This program listens for the trigger word "computer" and listens for commands.
+
 import speech_recognition as sr
 import winsound
-import subprocess
-import webbrowser
+import wolframalpha
+from commands import commands
+from texttospeech import tts
 
 
-# This program listens for the trigger word "hello there" and listens for commands.
+def wolfram(question):
+    app_id = "5AXQ5J-3W6A7YU5Q9"
+    client = wolframalpha.Client(app_id)
+    res = client.query(question)
+    answer = next(res.results).text
+    return answer
 
-# This function listens for the trigger word "hello there" and goes to the instruction_listener function.
+
+# This function listens for the trigger word "computer" and goes to the instruction_listener function.
 # It loops back if the trigger word is not heard.
 def trigger_listener():
+    print("Say \"computer\" to trigger voice assistant.")
     x = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Say hello there to trigger instructions.")
         audio = x.listen(source)
         try:
             trigger = x.recognize_google(audio)
-            if "hello there" in trigger:
+            if "computer" in trigger:
                 instruction_listener()
         except sr.UnknownValueError:
             trigger = trigger_listener()
@@ -33,32 +42,20 @@ def instruction_listener():
         audio = r.listen(source)
         try:
             instruction = r.recognize_google(audio)
-            winsound.PlaySound("swvader03", winsound.SND_FILENAME)
-            print("You said: " + instruction)
-            commands(instruction)
+            # winsound.PlaySound("swvader03", winsound.SND_FILENAME)
+            print(instruction)
+            done = commands(instruction)
+            if done == "failure":
+                answer = wolfram(instruction)
+                print(answer)
+                tts(answer)
         except sr.UnknownValueError:
             print("Try again")
             instruction = instruction_listener()
             return instruction
 
 
-# This function contains commands that can be called from the instruction_listener function.
-def commands(instruction):
-
-    if "open Spotify" in instruction:
-        command = "Spotify"
-        subprocess.Popen(command)
-        print("Yes, my master")
-
-    if "open Google Chrome" in instruction:
-        command = "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
-        subprocess.Popen(command)
-        print("Yes, my master")
-
-    if "nothing" in instruction:
-        print("Yes my master.")
-
-
 # Infinite loop for program
-while True:
-    trigger_listener()
+def loop(event):
+    while True:
+        trigger_listener()
