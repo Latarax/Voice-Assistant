@@ -1,4 +1,4 @@
-# Voice-Assistant
+# Voice Assistant
 A voice assistant that constantly listens for speech input and executes relevant requests. 
 
 Local commands are available as well as Wolfram Alpha queries for other relevant requests. 
